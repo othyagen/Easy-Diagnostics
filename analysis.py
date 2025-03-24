@@ -1,6 +1,6 @@
 import re
 import json
-from symtomanalys import analysera_symtom, analysera_sokrates
+from easy_diagnostics.symtomanalys import analysera_symtom, analysera_sokrates
 
 with open("symtomdata.json", encoding="utf-8") as f:
     symtom_dict = json.load(f)

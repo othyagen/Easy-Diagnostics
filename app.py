@@ -1,6 +1,6 @@
 import streamlit as st
 import json
-from analysis import strukturera_anamnes
+from easy_diagnostics.analysis import strukturera_anamnes
 
 SYMPTOM_FILE = "symtomdata.json"
 
