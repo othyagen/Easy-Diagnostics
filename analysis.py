@@ -1,6 +1,6 @@
 import re
 import json
-from symtomanalys import analysera_symtom
+from symtomanalys import analysera_symtom, analysera_sokrates
 
 with open("symtomdata.json", encoding="utf-8") as f:
     symtom_dict = json.load(f)
@@ -37,7 +37,6 @@ def strukturera_anamnes(text):
         "Investigations": "",
     }
 
-    # Ålder och kön
     age_sex_match = re.search(r"(\d{1,3})\s*(-| )?(år(ig| gammal)?)?\s*(man|kvinna|pojke|flicka|gosse|tös|jänta|påg)", text)
     if age_sex_match:
         age = age_sex_match.group(1)
@@ -46,7 +45,6 @@ def strukturera_anamnes(text):
         sex = kön_map.get(sex_raw, sex_raw)
         sections["Age/Sex"] = f"{age} år, {sex}"
 
-    # Presenting complaint (PC)
     pc_träffar = []
     for namn, info in symtom_dict.items():
         nyckelord = info.get("nyckelord", [])
@@ -61,11 +59,14 @@ def strukturera_anamnes(text):
             nyckelord = symtom_dict[symtom].get("nyckelord", [])
             meningar = hitta_relevanta_meningar(text, nyckelord)
             relevant_text = " ".join(meningar)
-            analys = analysera_symtom(relevant_text, symtom)
+            if any(s in relevant_text for s in ["ont", "smärta", "molande", "stickande", "brännande", "huggande", "tryckande", "skärande"]):
+                analys = analysera_sokrates(relevant_text, symtom)
+            else:
+                analys = analysera_symtom(relevant_text, symtom)
             if analys:
                 hpc_resultat.append(f"🩺 {symtom}")
                 hpc_resultat.extend([f"• {rad}" for rad in analys])
-                hpc_resultat.append("")  # tom rad mellan symtom
+                hpc_resultat.append("")
         sections["History of presenting complaint (HPC)"] = hpc_resultat or ["*Ej angivet*"]
 
     return sections

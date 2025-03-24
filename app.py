@@ -40,6 +40,26 @@ elif view == "🔍 Utforska & redigera symtom":
     else:
         st.info("🔒 Redigeringsläge är AV – du kan endast bläddra bland symtom.")
 
+    if edit_mode:
+        st.markdown("### ➕ Lägg till nytt symtom")
+        new_name = st.text_input("Nytt symtomnamn", key="new_symtom")
+        new_words = st.text_input("Nyckelord (separeras med semikolon)", key="new_keywords")
+        new_sys = st.text_input("System", key="new_sys")
+        new_lok = st.text_input("Lokalisation", key="new_lok")
+        new_alarm = st.checkbox("Alarmsymtom", key="new_alarm")
+        if st.button("➕ Lägg till"):
+            if new_name and new_words:
+                data[new_name] = {
+                    "nyckelord": [k.strip() for k in new_words.split(";")],
+                    "system": new_sys,
+                    "lokalisation": new_lok,
+                    "alarmsymtom": new_alarm
+                }
+
+        if st.button("💾 Spara alla ändringar"):
+            save_symptom_data(data)
+            st.success("✅ Ändringar sparade!")
+
     st.markdown("### 🔎 Filtrera & sök")
     search_term = st.text_input("Sök efter symtom eller nyckelord").lower()
     system_filter = st.selectbox("System", ["Alla"] + sorted(set(v.get("system", "Ej angivet") for v in data.values())))
@@ -86,23 +106,3 @@ elif view == "🔍 Utforska & redigera symtom":
 
     for k in keys_to_delete:
         del data[k]
-
-    if edit_mode:
-        st.markdown("### ➕ Lägg till nytt symtom")
-        new_name = st.text_input("Nytt symtomnamn", key="new_symtom")
-        new_words = st.text_input("Nyckelord (separeras med semikolon)", key="new_keywords")
-        new_sys = st.text_input("System", key="new_sys")
-        new_lok = st.text_input("Lokalisation", key="new_lok")
-        new_alarm = st.checkbox("Alarmsymtom", key="new_alarm")
-        if st.button("➕ Lägg till"):
-            if new_name and new_words:
-                data[new_name] = {
-                    "nyckelord": [k.strip() for k in new_words.split(";")],
-                    "system": new_sys,
-                    "lokalisation": new_lok,
-                    "alarmsymtom": new_alarm
-                }
-
-        if st.button("💾 Spara alla ändringar"):
-            save_symptom_data(data)
-            st.success("✅ Ändringar sparade!")
