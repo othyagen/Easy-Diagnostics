@@ -8,7 +8,7 @@ with open("symtomdata.json", encoding="utf-8") as f:
 def extrahera_meningar(text):
     return re.split(r'(?<=[.!?])\s+', text)
 
-def hitta_relevant_meningar(text, nyckelord_lista):
+def hitta_relevanta_meningar(text, nyckelord_lista):
     meningar = extrahera_meningar(text)
     relevanta = []
     for mening in meningar:
@@ -24,7 +24,7 @@ def strukturera_anamnes(text):
     sections = {
         "Age/Sex": "",
         "Presenting complaint (PC)": "",
-        "History of presenting complaint (HPC)": "",
+        "History of presenting complaint (HPC)": [],
         "Past medical history (PMH)": "",
         "Drug history (DHx)": "",
         "Allergies/reactions": "",
@@ -59,13 +59,13 @@ def strukturera_anamnes(text):
         hpc_resultat = []
         for symtom in pc_träffar:
             nyckelord = symtom_dict[symtom].get("nyckelord", [])
-            meningar = hitta_relevant_meningar(text, nyckelord)
+            meningar = hitta_relevanta_meningar(text, nyckelord)
             relevant_text = " ".join(meningar)
             analys = analysera_symtom(relevant_text, symtom)
             if analys:
-                format_str = f"🩺 **{symtom}**\n" + "\n".join([f"• {rad}" for rad in analys])
-                hpc_resultat.append(format_str)
-
-        sections["History of presenting complaint (HPC)"] = "\n\n".join(hpc_resultat)
+                hpc_resultat.append(f"🩺 {symtom}")
+                hpc_resultat.extend([f"• {rad}" for rad in analys])
+                hpc_resultat.append("")  # tom rad mellan symtom
+        sections["History of presenting complaint (HPC)"] = hpc_resultat or ["*Ej angivet*"]
 
     return sections

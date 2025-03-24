@@ -22,7 +22,12 @@ if view == "📋 Strukturerad anamnes":
         strukturerad = strukturera_anamnes(input_text)
         st.subheader("📋 Strukturerad anamnes:")
         for rubrik, innehåll in strukturerad.items():
-            st.markdown(f"\n**{rubrik}:**\n{innehåll if innehåll else '*Ej angivet*'}")
+            st.markdown(f"\n**{rubrik}:**")
+            if rubrik == "History of presenting complaint (HPC)":
+                for rad in innehåll:
+                    st.markdown(rad)
+            else:
+                st.markdown(innehåll if innehåll else "*Ej angivet*")
 
 elif view == "🔍 Utforska & redigera symtom":
     st.title("🔍 Utforska & redigera symtom")
