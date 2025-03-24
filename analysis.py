@@ -63,7 +63,8 @@ def strukturera_anamnes(text):
             relevant_text = " ".join(meningar)
             analys = analysera_symtom(relevant_text, symtom)
             if analys:
-                hpc_resultat.append(f"{symtom}:\n- " + "\n- ".join(analys))
+                format_str = f"🩺 **{symtom}**\n" + "\n".join([f"• {rad}" for rad in analys])
+                hpc_resultat.append(format_str)
 
         sections["History of presenting complaint (HPC)"] = "\n\n".join(hpc_resultat)
 

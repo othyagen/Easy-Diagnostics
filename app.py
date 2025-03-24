@@ -22,7 +22,7 @@ if view == "📋 Strukturerad anamnes":
         strukturerad = strukturera_anamnes(input_text)
         st.subheader("📋 Strukturerad anamnes:")
         for rubrik, innehåll in strukturerad.items():
-            st.markdown(f"**{rubrik}:**\n{innehåll if innehåll else '*Ej angivet*'}")
+            st.markdown(f"\n**{rubrik}:**\n{innehåll if innehåll else '*Ej angivet*'}")
 
 elif view == "🔍 Utforska & redigera symtom":
     st.title("🔍 Utforska & redigera symtom")
@@ -37,26 +37,26 @@ elif view == "🔍 Utforska & redigera symtom":
 
     st.markdown("### 🔎 Filtrera & sök")
     search_term = st.text_input("Sök efter symtom eller nyckelord").lower()
-    system_filter = st.selectbox("System", ["Alla"] + sorted(set(v["system"] for v in data.values())))
-    lokalisation_filter = st.selectbox("Lokalisation", ["Alla"] + sorted(set(v["lokalisation"] for v in data.values())))
+    system_filter = st.selectbox("System", ["Alla"] + sorted(set(v.get("system", "Ej angivet") for v in data.values())))
+    lokalisation_filter = st.selectbox("Lokalisation", ["Alla"] + sorted(set(v.get("lokalisation", "Ej angivet") for v in data.values())))
     alarmsymtom_only = st.checkbox("Visa endast alarmsymtom")
 
     keys_to_delete = []
 
     for symtom, info in data.items():
-        if search_term and search_term not in symtom.lower() and not any(search_term in kw.lower() for kw in info["nyckelord"]):
+        if search_term and search_term not in symtom.lower() and not any(search_term in kw.lower() for kw in info.get("nyckelord", [])):
             continue
-        if system_filter != "Alla" and info["system"] != system_filter:
+        if system_filter != "Alla" and info.get("system") != system_filter:
             continue
-        if lokalisation_filter != "Alla" and info["lokalisation"] != lokalisation_filter:
+        if lokalisation_filter != "Alla" and info.get("lokalisation") != lokalisation_filter:
             continue
-        if alarmsymtom_only and not info.get("alarmsymtom"):
+        if alarmsymtom_only and not info.get("alarmsymtom", False):
             continue
 
         with st.expander(symtom):
             if edit_mode:
                 new_symtom = st.text_input("Namn", value=symtom, key=symtom)
-                new_keywords = st.text_area("Nyckelord (separeras med semikolon)", value="; ".join(info["nyckelord"]), key=symtom+"_kw")
+                new_keywords = st.text_area("Nyckelord (separeras med semikolon)", value="; ".join(info.get("nyckelord", [])), key=symtom+"_kw")
                 new_system = st.text_input("System", value=info.get("system", ""), key=symtom+"_sys")
                 new_lokal = st.text_input("Lokalisation", value=info.get("lokalisation", ""), key=symtom+"_lok")
                 new_alarm = st.checkbox("Alarmsymtom", value=info.get("alarmsymtom", False), key=symtom+"_alarm")
@@ -74,9 +74,9 @@ elif view == "🔍 Utforska & redigera symtom":
                 if st.button(f"❌ Ta bort '{symtom}'", key=symtom+"_del"):
                     keys_to_delete.append(symtom)
             else:
-                st.markdown(f"- **Nyckelord:** {', '.join(info['nyckelord'])}")
-                st.markdown(f"- **System:** {info['system']}")
-                st.markdown(f"- **Lokalisation:** {info['lokalisation']}")
+                st.markdown(f"- **Nyckelord:** {', '.join(info.get('nyckelord', []))}")
+                st.markdown(f"- **System:** {info.get('system', 'Ej angivet')}")
+                st.markdown(f"- **Lokalisation:** {info.get('lokalisation', 'Ej angivet')}")
                 st.markdown(f"- **Alarmsymtom:** {'✅' if info.get('alarmsymtom') else '❌'}")
 
     for k in keys_to_delete:
