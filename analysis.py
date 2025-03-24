@@ -5,6 +5,15 @@ from symtomanalys import analysera_symtom
 with open("symtomdata.json", encoding="utf-8") as f:
     symtom_dict = json.load(f)
 
+def extrahera_meningar(text):
+    # Dela texten i meningar baserat på skiljetecken – förberett för att kunna bytas till spaCy
+    return re.split(r'(?<=[.!?])\s+', text)
+
+def hitta_relevant_text_for_symtom(text, nyckelord):
+    meningar = extrahera_meningar(text)
+    relevanta = [m for m in meningar if any(nyckelord in m.lower() for nyckelord in nyckelord)]
+    return " ".join(relevanta)
+
 def strukturera_anamnes(text):
     text = text.lower()
 
@@ -33,7 +42,7 @@ def strukturera_anamnes(text):
         sex = kön_map.get(sex_raw, sex_raw)
         sections["Age/Sex"] = f"{age} år, {sex}"
 
-    # Presenting complaint
+    # Presenting complaint (PC)
     pc_träffar = []
     for namn, info in symtom_dict.items():
         nyckelord = info.get("nyckelord", [])
@@ -43,10 +52,11 @@ def strukturera_anamnes(text):
     if pc_träffar:
         sections["Presenting complaint (PC)"] = "Patienten uppger:\n- " + "\n- ".join(pc_träffar)
 
-        # HPC – analys per symtom
         hpc_resultat = []
         for symtom in pc_träffar:
-            analys = analysera_symtom(text, symtom)
+            nyckelord = symtom_dict[symtom].get("nyckelord", [])
+            relevant_text = hitta_relevant_text_for_symtom(text, nyckelord)
+            analys = analysera_symtom(relevant_text, symtom)
             if analys:
                 hpc_resultat.append(f"{symtom}:\n- " + "\n- ".join(analys))
 
