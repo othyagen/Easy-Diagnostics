@@ -1,50 +1,71 @@
 import re
-from socrates import analysera_socrates
 
-def analysera_symtom(text, symtom_namn):
-    text = text.lower()
-    analys = []
+def analysera_symtom(text, symtom):
+    resultat = []
+    if not text:
+        return resultat
 
-    analys.append(f"Karaktär: {symtom_namn.lower()}")
+    # Karaktär
+    resultat.append(f"Karaktär: {symtom}")
 
-    if "plötsligt" in text:
-        analys.append("Debut: plötslig")
-    elif "gradvis" in text:
-        analys.append("Debut: gradvis")
+    # Periodicitet/mönster
+    if re.search(r"(intermittent|kommer och går|periodvis)", text):
+        resultat.append("Mönster: intermittent")
+    elif re.search(r"(ständig|konstant|ihållande|hela tiden)", text):
+        resultat.append("Mönster: konstant")
 
-    if re.search(r"(för|sedan)\s+\d+\s+(dagar?|veckor?|timmar?)", text):
-        analys.append("Tidsangivelse: " + re.search(r"(för|sedan)\s+\d+\s+(dagar?|veckor?|timmar?)", text).group(0))
+    # Förlopp
+    if re.search(r"(blivit värre|försämrats|tilltagit)", text):
+        resultat.append("Förlopp: försämring")
+    elif re.search(r"(förbättrats|lindrats|blivit bättre)", text):
+        resultat.append("Förlopp: förbättring")
+    elif re.search(r"(oförändrad|lika illa|samma som innan)", text):
+        resultat.append("Förlopp: oförändrat")
 
-    if "haft tidigare" in text:
-        analys.append("Tidigare episoder: ja")
+    # Debut
+    if re.search(r"(började|debuterade|sedan i|i \w+sdags|för \d+ dagar)", text):
+        resultat.append("Tidsaspekt: " + re.findall(r"(började.*?|sedan i \w+sdags|för \d+ dagar)", text)[0])
 
-    if "konstant" in text:
-        analys.append("Mönster: konstant")
-    elif "kommer och går" in text or "intermittent" in text:
-        analys.append("Mönster: intermittent")
+    # Associerade symtom
+    if re.search(r"(feber|illamående|frossa|kräkning|hosta)", text):
+        assoc = re.findall(r"(feber|illamående|frossa|kräkning|hosta)", text)
+        resultat.append(f"Associerade symtom: {', '.join(set(assoc))}")
 
-    if "förvärrats" in text or "blivit värre" in text:
-        analys.append("Förlopp: försämring")
-    elif "förbättrats" in text or "blivit bättre" in text:
-        analys.append("Förlopp: förbättring")
+    # Förvärrande faktorer
+    if re.search(r"(vid ansträngning|rörelse|hosta|djupandning)", text):
+        resultat.append("Förvärras av: ansträngning/rörelse")
 
-    if "förvärras" in text:
-        analys.append("Förvärras av: ansträngning")
-    if "lindras" in text:
-        analys.append("Lindras av: vila")
+    return resultat
 
-    associerade = []
-    for sym in ["hosta", "illamående", "feber", "yrsel", "trötthet"]:
-        if sym in text:
-            associerade.append(sym)
-    if associerade:
-        analys.append("Associerade symtom: " + ", ".join(associerade))
+def analysera_sokrates(text, symtom):
+    resultat = []
 
-    if "ont" in symtom_namn or "smärta" in symtom_namn:
-        socrates = analysera_socrates(text, symtom_namn.split()[-1])
-        if socrates:
-            analys.append("🩸 SOCRATES:")
-            for rad in socrates:
-                analys.append("  - " + rad)
+    resultat.append(f"Karaktär: {symtom}")
 
-    return analys
+    if match := re.search(r"(på|i|över|bakom) [a-zåäö\s]+", text):
+        resultat.append(f"Plats: {match.group()}")
+
+    if re.search(r"(plötsligt|gradvis|började)", text):
+        resultat.append("Debut: " + re.findall(r"(plötsligt|gradvis|började)", text)[0])
+
+    if re.search(r"(molande|stickande|brännande|tryckande|huggande|skärande)", text):
+        typ = re.findall(r"(molande|stickande|brännande|tryckande|huggande|skärande)", text)[0]
+        resultat.append(f"Smärtkaraktär: {typ}")
+
+    if re.search(r"(strålar|sprider sig|ut i)", text):
+        resultat.append("Radiation: förekommer")
+
+    if re.search(r"(feber|illamående|andnöd|kräkning)", text):
+        assoc = re.findall(r"(feber|illamående|andnöd|kräkning)", text)
+        resultat.append(f"Associerade symtom: {', '.join(set(assoc))}")
+
+    if re.search(r"(förvärras|värre vid)", text):
+        resultat.append("Förvärrande faktorer: angivna")
+
+    if re.search(r"(lindras av|hjälper med)", text):
+        resultat.append("Lindrande faktorer: angivna")
+
+    if match := re.search(r"\b(\d|10)\/10\b", text):
+        resultat.append(f"Smärtintensitet: {match.group()}")
+
+    return resultat
