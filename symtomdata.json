@@ -1,0 +1,42 @@
+{
+  "Dyspné": {
+    "nyckelord": [
+      "andnöd",
+      "andas tungt",
+      "andas svårt"
+    ],
+    "system": "Andningsorgan",
+    "lokalisation": "Bröstkorg",
+    "alarmsymtom": true
+  },
+  "Ont i magen": {
+    "nyckelord": [
+      "ont i magen",
+      "magont",
+      "buksmärta"
+    ],
+    "system": "Mag-tarmkanalen",
+    "lokalisation": "Buk",
+    "alarmsymtom": false
+  },
+  "Huvudvärk": {
+    "nyckelord": [
+      "huvudvärk",
+      "ont i huvudet",
+      "tryck i huvudet"
+    ],
+    "system": "Neurologi",
+    "lokalisation": "Huvud",
+    "alarmsymtom": false
+  },
+  "Hemoptys": {
+    "nyckelord": [
+      "hosta blod",
+      "blod i slem",
+      "röd slemhosta"
+    ],
+    "system": "Andningsorgan",
+    "lokalisation": "Bröstkorg",
+    "alarmsymtom": true
+  }
+}
