@@ -6,13 +6,17 @@ with open("symtomdata.json", encoding="utf-8") as f:
     symtom_dict = json.load(f)
 
 def extrahera_meningar(text):
-    # Dela texten i meningar baserat på skiljetecken – förberett för att kunna bytas till spaCy
     return re.split(r'(?<=[.!?])\s+', text)
 
-def hitta_relevant_text_for_symtom(text, nyckelord):
+def hitta_relevant_meningar(text, nyckelord_lista):
     meningar = extrahera_meningar(text)
-    relevanta = [m for m in meningar if any(nyckelord in m.lower() for nyckelord in nyckelord)]
-    return " ".join(relevanta)
+    relevanta = []
+    for mening in meningar:
+        for nyckelord in nyckelord_lista:
+            if nyckelord.lower() in mening.lower():
+                relevanta.append(mening.strip())
+                break
+    return relevanta
 
 def strukturera_anamnes(text):
     text = text.lower()
@@ -55,7 +59,8 @@ def strukturera_anamnes(text):
         hpc_resultat = []
         for symtom in pc_träffar:
             nyckelord = symtom_dict[symtom].get("nyckelord", [])
-            relevant_text = hitta_relevant_text_for_symtom(text, nyckelord)
+            meningar = hitta_relevant_meningar(text, nyckelord)
+            relevant_text = " ".join(meningar)
             analys = analysera_symtom(relevant_text, symtom)
             if analys:
                 hpc_resultat.append(f"{symtom}:\n- " + "\n- ".join(analys))
